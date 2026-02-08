@@ -17,26 +17,6 @@ Aquest repositori conté el **backend** de **ReservesApp**, una aplicació per a
 
 ---
 
-## Estructura del projecte
-
-reservesapp-backend/
-├─ src/
-│ ├─ main/
-│ │ ├─ java/com/reservesapp/
-│ │ │ ├─ controller/ # Endpoints REST
-│ │ │ ├─ service/ # Lògica de negoci
-│ │ │ ├─ repository/ # Accés a dades
-│ │ │ └─ ReservesAppBackendApplication.java
-│ │ └─ resources/
-│ │ ├─ application.properties # Configuració del projecte
-│ │ └─ data.sql # Dades inicials opcional
-│ └─ test/
-├─ pom.xml
-└─ .gitignore
-
-
----
-
 ## Tecnologies
 
 - **Spring Boot**: Framework principal per al backend.  
