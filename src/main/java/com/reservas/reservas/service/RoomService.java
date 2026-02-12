@@ -11,7 +11,7 @@ import java.util.Map;
 @Service
 public class RoomService {
 
-    @GetMapping
+
     public List<Map<String, Object>> getRooms(){
         return List.of(
                 Map.of(
@@ -32,7 +32,7 @@ public class RoomService {
         );
     }
 
-    @PostMapping
+
     public Map<String, Object> createRoom(@RequestBody Map<String,Object> room){
         System.out.println(room);
         return room;
