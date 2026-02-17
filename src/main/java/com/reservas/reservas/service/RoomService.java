@@ -1,5 +1,7 @@
 package com.reservas.reservas.service;
 
+import com.reservas.reservas.entity.Room;
+import com.reservas.reservas.repository.RoomRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,30 +13,18 @@ import java.util.Map;
 @Service
 public class RoomService {
 
-
-    public List<Map<String, Object>> getRooms(){
-        return List.of(
-                Map.of(
-                        "id",1,
-                        "name", "Sala A",
-                        "capacity", 10
-                ),
-                Map.of(
-                        "id", 2,
-                        "name", "Sala B",
-                        "capacity", 20
-                ),
-                Map.of(
-                        "id", 3,
-                        "name", "Sala C",
-                        "capacity", 30
-                )
-        );
+    private final RoomRepository roomRepository;
+    //Inyeccion de repositorio dentro del servicio
+    public RoomService (RoomRepository roomRepository){
+        this.roomRepository = roomRepository;
+    }
+    //Cambio en el get
+    public List<Room> getRooms(){
+        return roomRepository.findAll();
     }
 
-
-    public Map<String, Object> createRoom(@RequestBody Map<String,Object> room){
-        System.out.println(room);
-        return room;
+   //Cambio en el post del map fake previo
+    public Room createRoom(Room room){
+        return roomRepository.save(room);
     }
 }
