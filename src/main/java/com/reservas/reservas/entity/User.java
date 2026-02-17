@@ -3,16 +3,26 @@ package com.reservas.reservas.entity;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name="users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @Column(unique = true)
     private String email;
     private String password;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     //constructor
     public User(){}
+
+    //Creamos Enum para incluir a los roles
+    public enum Role{
+        ADMIN,
+        EMPLOYEE
+    }
 
     //Getters y Setters
     public Long getId() {

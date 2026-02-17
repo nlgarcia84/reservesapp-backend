@@ -1,5 +1,6 @@
 package com.reservas.reservas.controller;
 
+import com.reservas.reservas.entity.Room;
 import com.reservas.reservas.service.RoomService;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,18 +14,20 @@ import java.util.List;
 public class RoomController {
     private RoomService roomService;
 
-    //Constructor con Servicio como parámetro
+    //Constructor con inyeccion del servicio como parámetro
     public RoomController (RoomService roomService){
         this.roomService =roomService;
     }
 
+    //Actualizamos el get
     @GetMapping
-    public List <Map<String, Object>> getRooms(){
-      return roomService.getRooms();
+    public List <Room> getRooms(){
+        return roomService.getRooms();
     }
 
+    //Actualizamos el post
     @PostMapping
-    public Map<String, Object> createRooms(@RequestBody Map<String,Object> room){
+    public Room createRooms(@RequestBody Room room){
         return roomService.createRoom(room);
     }
 
