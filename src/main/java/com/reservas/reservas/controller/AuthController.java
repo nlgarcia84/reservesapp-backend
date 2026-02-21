@@ -1,6 +1,7 @@
 package com.reservas.reservas.controller;
 
 import com.reservas.reservas.dto.LoginRequest;
+import com.reservas.reservas.dto.LoginResponse;
 import com.reservas.reservas.entity.User;
 import com.reservas.reservas.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -18,7 +19,18 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public User login(@RequestBody LoginRequest request){
-        return userService.login(request.getEmail(), request.getPassword());
+    public LoginResponse login(@RequestBody LoginRequest request){
+        User user= userService.login(
+                request.getEmail(),
+                request.getPassword()
+        );
+
+        return new LoginResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getRole().name() //.name() convierte a String y el frontend recibe ADMIN o EMPLOYEE, porque Role es enum
+        );
+
     }
 }
