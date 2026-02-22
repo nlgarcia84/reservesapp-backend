@@ -18,8 +18,10 @@ public class AuthController {
         this.userService=userService;
     }
 
+    //Convierte la petición de React (JSON) en objeto LoginRequest
     @PostMapping("/login")
     public LoginResponse login(@RequestBody LoginRequest request){
+        //Este controller llama al servicio de User (userService)
         User user= userService.login(
                 request.getEmail(),
                 request.getPassword()
