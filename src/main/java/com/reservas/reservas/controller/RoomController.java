@@ -4,13 +4,10 @@ import com.reservas.reservas.entity.Room;
 import com.reservas.reservas.service.RoomService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 import java.util.List;
-
 
 @RestController
 @RequestMapping("/rooms")
-@CrossOrigin(origins = "http://localhost:3000")
 public class RoomController {
     private RoomService roomService;
 
@@ -19,16 +16,22 @@ public class RoomController {
         this.roomService =roomService;
     }
 
-    //Actualizamos el get
+    //Traemos salas
     @GetMapping
     public List <Room> getRooms(){
         return roomService.getRooms();
     }
 
-    //Actualizamos el post
+    //Anadimos salas
     @PostMapping
     public Room createRooms(@RequestBody Room room){
         return roomService.createRoom(room);
+    }
+
+    //Eliminamos sala
+    @DeleteMapping("/{name}")
+    public void deleteRooms(@PathVariable String name){
+        roomService.deleteRoom(name);
     }
 
 }
