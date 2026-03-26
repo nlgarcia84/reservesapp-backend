@@ -8,10 +8,10 @@
         <version>3.5.10</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.reservas</groupId>
-    <artifactId>reservas</artifactId>
+    <groupId>com.roomyapp</groupId>
+    <artifactId>roomyapp-backend</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>prototipo-reservas</name>
+    <name>RoomyApp Backend</name>
     <description>prototipo-reservas</description>
     <url/>
     <licenses>
@@ -52,6 +52,12 @@
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- Dependencia para Spring Security-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
     </dependencies>
