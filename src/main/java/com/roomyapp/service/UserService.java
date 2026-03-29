@@ -18,6 +18,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    //Login
     public User login(String email, String rawPassword) {
 
         User user = userRepository.findByEmail(email)
@@ -27,5 +28,27 @@ public class UserService {
             throw new RuntimeException("Credenciales incorrectas");
         }
         return user;
+    }
+
+    //Register
+    public User register(String name, String email, String rawPassword){
+        //Comprobamos si el usuario existe
+        if(userRepository.findByEmail(email).isPresent()){
+            throw  new RuntimeException("El usuario ya existe");
+        }
+
+        //Crear usuario
+        User user =new User();
+        user.setName(name);
+        user.setEmail(email);
+
+        //Encriptar Contrasenya
+        user.setPassword(passwordEncoder.encode(rawPassword));
+
+        //Asignar rol por defecto
+        user.setRole(User.Role.EMPLOYEE);
+
+        //guardar en BD
+        return userRepository.save(user);
     }
 }
