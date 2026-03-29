@@ -9,6 +9,8 @@ import org.springframework.security.web.SecurityFilterChain;
 
 /**
  * Clase de Comfiguración que se encarga de encriptar la contraseña
+ * Permitirá endpoints pubicos
+ * Definirá reglas de acceso
  */
 
 @Configuration
