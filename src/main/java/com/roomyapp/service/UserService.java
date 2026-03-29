@@ -30,18 +30,25 @@ public class UserService {
         return user;
     }
 
-    //Registro que inyecta nombre e email del DTO RegisterRequest
-    public User register(RegisterRequest request){
-        User user = new User();
-        user.setName(request.getName());
-        user.setEmail(request.getEmail());
+    //Register
+    public User register(String name, String email, String rawPassword){
+        //Comprobamos si el usuario existe
+        if(userRepository.findByEmail(email).isPresent()){
+            throw  new RuntimeException("El usuario ya existe");
+        }
 
-        //Encriptación de la contraseña
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        //Crear usuario
+        User user =new User();
+        user.setName(name);
+        user.setEmail(email);
 
-        //Rol por defecto
+        //Encriptar Contrasenya
+        user.setPassword(passwordEncoder.encode(rawPassword));
+
+        //Asignar rol por defecto
         user.setRole(User.Role.EMPLOYEE);
 
+        //guardar en BD
         return userRepository.save(user);
     }
 }

@@ -1,9 +1,13 @@
 package com.roomyapp.dto;
 
 public class RegisterRequest {
+
     private String name;
     private String email;
     private String password;
+
+    // Constructor vacío (IMPORTANTE)
+    public RegisterRequest() {}
 
     public String getName() {
         return name;
@@ -28,4 +32,5 @@ public class RegisterRequest {
     public void setPassword(String password) {
         this.password = password;
     }
+
 }

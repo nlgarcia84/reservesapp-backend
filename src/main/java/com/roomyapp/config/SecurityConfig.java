@@ -23,17 +23,19 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    // Configuración de seguridad
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf.disable()) // necesario para Postman
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/register").permitAll()
-                        .requestMatchers("/auth/login").permitAll()
+                        .requestMatchers("/auth/login").permitAll() //  ESTA ES LA CLAVE
+                        .requestMatchers("/auth/register").permitAll() //  ESTA ES LA CLAVE
                         .anyRequest().authenticated()
                 )
-                .httpBasic(Customizer.withDefaults())
-                .formLogin(form -> form.disable());   // DESACTIVA LOGIN WEB
+                .httpBasic((httpBasic -> httpBasic.disable())); //evitar login basico
+
         return http.build();
     }
 }
