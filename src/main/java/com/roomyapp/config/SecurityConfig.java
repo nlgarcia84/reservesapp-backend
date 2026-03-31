@@ -10,19 +10,40 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays;
 
 /**
- * Clase de Comfiguración que se encarga de encriptar la contraseña
- * Permitirá endpoints pubicos
- * Definirá reglas de acceso
+ * Clase de Configuración que se encarga de:
+ * - Encriptar la contraseña
+ * - Permitir endpoints públicos
+ * - Definir reglas de acceso
+ * - Configurar CORS y JWT
  */
 
 @Configuration
 public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder(){
-
         return new BCryptPasswordEncoder();
+    }
+
+    // Configuración de CORS
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(java.util.Arrays.asList("http://localhost:3000"));
+        configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+        configuration.setExposedHeaders(java.util.Arrays.asList("Authorization", "Content-Type"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     // Configuración de seguridad
@@ -30,16 +51,16 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtUtil jwtUtil) throws Exception {
 
         http
-                .cors(Customizer.withDefaults()) //implementacion
-                .csrf(csrf -> csrf.disable()) // necesario para Postman
+                .cors(Customizer.withDefaults()) // Usa la configuración de CORS bean definida arriba
+                .csrf(csrf -> csrf.disable()) // Necesario para Postman y desarrollo
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin sesiones, solo JWT
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login").permitAll() //  ESTA ES LA CLAVE
-                        .requestMatchers("/auth/register").permitAll() //  ESTA ES LA CLAVE
-                        .anyRequest().authenticated()
+                        .requestMatchers("/auth/login").permitAll() // Endpoint público
+                        .requestMatchers("/auth/register").permitAll() // Endpoint público
+                        .anyRequest().authenticated() // Todo lo demás requiere autenticación
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class) // Agregar filtro JWT
-                .httpBasic((httpBasic -> httpBasic.disable())); //evitar login basico
+                .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
+                .httpBasic((httpBasic -> httpBasic.disable())); // Evitar login básico
 
         return http.build();
     }

@@ -30,13 +30,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        try {
-            // Extraer el token del header Authorization
-            String authHeader = request.getHeader("Authorization");
+        
+        String authHeader = request.getHeader("Authorization");
+        logger.info("Procesando petición a: " + request.getRequestURI());
+        logger.info("Authorization header: " + authHeader);
 
+        try {
+            // Solo procesar si hay un token Bearer
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 String token = authHeader.substring(7);
-                logger.debug("Token recibido: " + token.substring(0, Math.min(20, token.length())) + "...");
+                logger.info("Token recibido: " + token.substring(0, Math.min(20, token.length())) + "...");
 
                 try {
                     // Validar y obtener los claims del token
@@ -49,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     String email = claims.getSubject();
                     String role = (String) claims.get("role");
 
-                    logger.debug("Token válido para usuario: " + email);
+                    logger.info("Token válido para usuario: " + email + " con rol: " + role);
 
                     // Crear autoridades basadas en el rol
                     List<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -63,18 +66,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     // Establecer en el contexto de seguridad
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                    logger.info("Autenticación establecida en SecurityContext para: " + email);
                 } catch (Exception e) {
-                    logger.error("Error al validar token JWT: " + e.getMessage());
-                    SecurityContextHolder.clearContext();
+                    logger.error("Error al validar token JWT: " + e.getMessage(), e);
+                    logger.info("Continuando sin autenticación para esta petición");
+                    // No hacemos nada, permitimos que continúe sin autenticación
+                    // Las rutas protegidas rechazarán la petición en el siguiente paso
                 }
             } else {
-                logger.debug("No se encontró token en el header Authorization");
+                logger.info("No se encontró token Bearer. Es una petición pública.");
             }
         } catch (Exception e) {
-            logger.error("Error en JwtAuthenticationFilter: " + e.getMessage());
-            SecurityContextHolder.clearContext();
+            logger.error("Error inesperado en JwtAuthenticationFilter: " + e.getMessage(), e);
+            // Continuamos de todas formas
         }
 
-        filterChain.doFilter(request, response);
+        // IMPORTANTE: Siempre pasar al siguiente filtro, nunca bloquear aquí
+        try {
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            logger.error("Error al pasar al siguiente filtro: " + e.getMessage(), e);
+            throw e;
+        }
     }
 }

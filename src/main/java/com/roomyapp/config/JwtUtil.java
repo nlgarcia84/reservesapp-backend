@@ -26,29 +26,35 @@ public class JwtUtil {
 
     private Key key;
 
-    // Inicializar la clave después de inyectar las propiedades
-    private void initKey() {
-        if (key == null) {
+    // Inicializar la clave después de inyectar las propiedades (sincronizado para evitar race conditions)
+    private synchronized void initKey() {
+        if (key == null && secretKey != null) {
             this.key = Keys.hmacShaKeyFor(
                 Base64.getEncoder().encode(secretKey.getBytes())
             );
+            System.out.println("JwtUtil: Clave inicializada con secretKey de longitud: " + secretKey.length());
         }
     }
 
     public String generateToken(String email, String role){
         initKey();
-        return Jwts.builder()
+        String token = Jwts.builder()
                 .setSubject(email)
                 .claim("role",role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+        System.out.println("JwtUtil: Token generado para usuario: " + email + " con rol: " + role);
+        return token;
     }
 
     // Método para obtener la clave (lo usará el filtro JWT)
     public Key getKey() {
         initKey();
+        if (key == null) {
+            throw new RuntimeException("No se pudo inicializar la clave JWT. Verifique que jwt.secret está configurado.");
+        }
         return key;
     }
 
@@ -56,3 +62,4 @@ public class JwtUtil {
         return secretKey;
     }
 }
+

@@ -3,8 +3,9 @@ package com.roomyapp.controller;
 import com.roomyapp.entity.Room;
 import com.roomyapp.service.RoomService;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 import java.util.List;
 
 
@@ -12,23 +13,41 @@ import java.util.List;
 @RequestMapping("/rooms")
 @CrossOrigin(origins = "http://localhost:3000")
 public class RoomController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(RoomController.class);
     private RoomService roomService;
 
     //Constructor con inyeccion del servicio como parámetro
     public RoomController (RoomService roomService){
-        this.roomService =roomService;
+        this.roomService = roomService;
     }
 
-    //Actualizamos el get
+    //Obtener todas las salas
     @GetMapping
-    public List <Room> getRooms(){
-        return roomService.getRooms();
+    public List<Room> getRooms(){
+        logger.info("GET /rooms - Obteniendo lista de salas");
+        try {
+            List<Room> rooms = roomService.getRooms();
+            logger.info("Se encontraron " + rooms.size() + " salas");
+            return rooms;
+        } catch (Exception e) {
+            logger.error("Error al obtener salas: " + e.getMessage(), e);
+            throw e;
+        }
     }
 
-    //Actualizamos el post
+    //Crear una nueva sala
     @PostMapping
     public Room createRooms(@RequestBody Room room){
-        return roomService.createRoom(room);
+        logger.info("POST /rooms - Creando nueva sala: " + room.getName() + " con capacidad: " + room.getCapacity());
+        try {
+            Room createdRoom = roomService.createRoom(room);
+            logger.info("Sala creada exitosamente con ID: " + createdRoom.getId());
+            return createdRoom;
+        } catch (Exception e) {
+            logger.error("Error al crear sala: " + e.getMessage(), e);
+            throw e;
+        }
     }
 
 }
