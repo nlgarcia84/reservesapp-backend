@@ -5,6 +5,7 @@ import com.roomyapp.entity.User;
 import com.roomyapp.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -77,5 +78,10 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         userRepository.delete(user);
+    }
+
+    // Obtener todos los usuarios
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }
