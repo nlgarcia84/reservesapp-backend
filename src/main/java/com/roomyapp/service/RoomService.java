@@ -1,6 +1,7 @@
 package com.roomyapp.service;
 
 import com.roomyapp.entity.Room;
+import com.roomyapp.entity.User;
 import com.roomyapp.repository.RoomRepository;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
@@ -44,5 +45,14 @@ public class RoomService {
             logger.error("RoomService.createRoom() - Error guardando sala: " + e.getMessage(), e);
             throw new RuntimeException("Error al crear sala: " + e.getMessage(), e);
         }
+    }
+
+    // Eliminar usuario
+    public void deleteRoom(Long id) {
+
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+
+        roomRepository.delete(room);
     }
 }
