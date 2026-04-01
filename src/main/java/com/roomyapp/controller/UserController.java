@@ -3,6 +3,7 @@ package com.roomyapp.controller;
 import com.roomyapp.entity.User;
 import com.roomyapp.service.UserService;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -23,5 +24,10 @@ public class UserController {
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
+    }
+
+    @GetMapping
+    public List<User> getUsers() {
+        return userService.getAllUsers();
     }
 }
