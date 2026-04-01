@@ -51,4 +51,31 @@ public class UserService {
         //guardar en BD
         return userRepository.save(user);
     }
+
+    // Crear usuario desde admin
+    public User createUser(User user) {
+
+        // comprobar si ya existe email
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("El usuario ya existe");
+        }
+
+        // encriptar password
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        // asignar rol EMPLOYEE
+        user.setRole(User.Role.EMPLOYEE);
+
+        return userRepository.save(user);
+    }
+
+
+    // Eliminar usuario
+    public void deleteUser(Long id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        userRepository.delete(user);
+    }
 }
