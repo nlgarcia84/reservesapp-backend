@@ -57,6 +57,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login").permitAll() // Endpoint público
                         .requestMatchers("/auth/register").permitAll() // Endpoint público
+                        .requestMatchers("/users/**").hasRole("ADMIN") // Solo ADMIN puede acceder a usuarios
                         .anyRequest().authenticated() // Todo lo demás requiere autenticación
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
