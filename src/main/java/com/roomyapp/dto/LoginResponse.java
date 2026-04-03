@@ -1,4 +1,5 @@
 package com.roomyapp.dto;
+
 /*
 Clase que representa un DTO de salida
 Decide enviar al frontend los datos del usuario, pero exceptuando la password, esto es información sensible.
@@ -20,7 +21,7 @@ public class LoginResponse {
         this.token=token;
     }
 
-    public Long getid(){
+    public Long getId(){
         return id;
     }
 
@@ -36,5 +37,7 @@ public class LoginResponse {
         return role;
     }
 
-    public String getToken(){return token;}
+    public String getToken(){
+        return token;
+    }
 }

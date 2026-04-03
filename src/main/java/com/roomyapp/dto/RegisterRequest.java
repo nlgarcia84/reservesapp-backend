@@ -6,8 +6,15 @@ public class RegisterRequest {
     private String email;
     private String password;
 
-    // Constructor vacío (IMPORTANTE)
+    // Constructor vacío (IMPORTANTE para Jackson)
     public RegisterRequest() {}
+
+    // Constructor con argumentos
+    public RegisterRequest(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+    }
 
     public String getName() {
         return name;
@@ -33,4 +40,13 @@ public class RegisterRequest {
         this.password = password;
     }
 
+    @Override
+    public String toString() {
+        return "RegisterRequest{" +
+                "name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + (password != null ? "*****" : "null") + '\'' +
+                '}';
+    }
 }
+

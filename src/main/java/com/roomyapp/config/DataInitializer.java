@@ -9,11 +9,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 /*
 Clase que crea un usuario Admin si no existe.
-Esto es provisional hasta hacer migración a BD
- */
+Esto es provisional hasta hacer migración a BD. COMENTADA PARA EVITAR CREAR USUARIO ADMIN AUTOMÁTICAMENTE.
+
 @Configuration
 public class DataInitializer {
-
     @Bean
     CommandLineRunner initAdmin(UserRepository userRepository,
                                 PasswordEncoder passwordEncoder){
@@ -36,3 +35,7 @@ public class DataInitializer {
         };
     }
 }
+*/
+
+// La clase está completamente comentada para evitar la creación automática 
+// del usuario admin. Los usuarios deben registrarse manualmente o a través del endpoint /auth/register

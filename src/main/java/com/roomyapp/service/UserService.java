@@ -5,6 +5,7 @@ import com.roomyapp.entity.User;
 import com.roomyapp.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import java.util.List;
 
 @Service
 public class UserService {
@@ -50,5 +51,37 @@ public class UserService {
 
         //guardar en BD
         return userRepository.save(user);
+    }
+
+    // Crear usuario desde admin
+    public User createUser(User user) {
+
+        // comprobar si ya existe email
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new RuntimeException("El usuario ya existe");
+        }
+
+        // encriptar password
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        // asignar rol EMPLOYEE
+        user.setRole(User.Role.EMPLOYEE);
+
+        return userRepository.save(user);
+    }
+
+
+    // Eliminar usuario
+    public void deleteUser(Long id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        userRepository.delete(user);
+    }
+
+    // Obtener todos los usuarios
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }

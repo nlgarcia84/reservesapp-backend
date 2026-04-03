@@ -3,9 +3,11 @@ package com.roomyapp.config;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 
 /*
@@ -15,16 +17,49 @@ contrasenya continuamente y como una forma de garantizar la autenticación del u
 @Component
 public class JwtUtil {
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    // Lee la clave de las propiedades o variable de entorno JWT_SECRET
+    @Value("${jwt.secret}")
+    private String secretKey;
+
+    @Value("${jwt.expiration:604800000}")
+    private long expiration;
+
+    private Key key;
+
+    // Inicializar la clave después de inyectar las propiedades (sincronizado para evitar race conditions)
+    private synchronized void initKey() {
+        if (key == null && secretKey != null) {
+            this.key = Keys.hmacShaKeyFor(
+                Base64.getEncoder().encode(secretKey.getBytes())
+            );
+            System.out.println("JwtUtil: Clave inicializada con secretKey de longitud: " + secretKey.length());
+        }
+    }
 
     public String generateToken(String email, String role){
-        return Jwts.builder()
+        initKey();
+        String token = Jwts.builder()
                 .setSubject(email)
                 .claim("role",role)
                 .setIssuedAt(new Date())
-                //.setExpiration(new Date(System.currentTimeMillis()+86400000)) duración de un día
-                .setExpiration(new Date(System.currentTimeMillis()+604800000)) //token duracion 7 dias
-                .signWith(key)
+                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+        System.out.println("JwtUtil: Token generado para usuario: " + email + " con rol: " + role);
+        return token;
+    }
+
+    // Método para obtener la clave (lo usará el filtro JWT)
+    public Key getKey() {
+        initKey();
+        if (key == null) {
+            throw new RuntimeException("No se pudo inicializar la clave JWT. Verifique que jwt.secret está configurado.");
+        }
+        return key;
+    }
+
+    public String getSecretKey() {
+        return secretKey;
     }
 }
+
