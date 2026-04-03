@@ -1,8 +1,14 @@
 package com.roomyapp.dto;
 
+/*
+Capa que recoge el email, password y booleano remeberMe desde el front, al momento
+del login
+En caso de rememberMe verdadero, el front devolvera un token mas largo
+ */
 public class LoginRequest {
     private String email;
     private String password;
+    private boolean rememberMe; //Frontend le dice Backend, recuerdame (rememberMe true).
 
     public String getEmail(){
         return email;
@@ -11,5 +17,8 @@ public class LoginRequest {
     public String getPassword(){
         return password;
 
+    }
+    public boolean getRememberMe(){
+        return rememberMe;
     }
 }
