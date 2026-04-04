@@ -21,8 +21,16 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secretKey;
 
-    @Value("${jwt.expiration:604800000}")
-    private long expiration;
+    //@Value("${jwt.expiration:604800000}")
+    //private long expiration;
+
+    //Expiracion normal
+    @Value("${jwt.expiration}")
+    private long normalExpiration;
+
+    //Expiracion rememberMe
+    @Value ("${jwt.remember.expiration}")
+    private long rememberExpiration;
 
     private Key key;
 
@@ -36,20 +44,24 @@ public class JwtUtil {
         }
     }
 
-    public String generateToken(String email, String role){
+    public String generateToken(String email, String role, boolean rememberMe){
         initKey();
+
+        long expirationToUse = rememberMe ? rememberExpiration: normalExpiration;
+
         String token = Jwts.builder()
                 .setSubject(email)
                 .claim("role",role)
+                .claim("rememberMe", rememberMe) //
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expiration))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationToUse))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-        System.out.println("JwtUtil: Token generado para usuario: " + email + " con rol: " + role);
+        System.out.println("Token generado (" + (rememberMe ? "REMEMBER ME" : "NORMAL") + ") para: " + email);
         return token;
     }
 
-    // Método para obtener la clave (lo usará el filtro JWT)
+    // Metodo para obtener la clave (lo usará el filtro JWT)
     public Key getKey() {
         initKey();
         if (key == null) {

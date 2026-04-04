@@ -39,9 +39,10 @@ public class AuthController {
 
             String token= jwtUtil.generateToken(
                     user.getEmail(),
-                    user.getRole().name()
+                    user.getRole().name(),
+                    request.getRememberMe() //login necesita saber si tiene que recordar la pass
             );
-
+            logger.info("Se ha solicitado rememberMe: de tipo " + request.getRememberMe());
             logger.info("Login exitoso para usuario: " + user.getEmail());
             return new LoginResponse(
                     user.getId(),
@@ -69,7 +70,8 @@ public class AuthController {
 
             String token = jwtUtil.generateToken(
                     user.getEmail(),
-                    user.getRole().name()
+                    user.getRole().name(),
+                    false //El registro no necesita de un jwt para recordar
             );
             logger.info("Registro exitoso para usuario: " + user.getEmail());
             return new LoginResponse(
