@@ -24,20 +24,20 @@ public class LoginRequest {
     public String getEmail(){
         return email;
     }
-
     public String getPassword(){
         return password;
+    }
+    public boolean getRememberMe(){
+        return rememberMe;
     }
 
     // Setters (necesarios para Jackson)
     public void setEmail(String email) {
         this.email = email;
     }
-
     public void setPassword(String password) {
         this.password = password;
     }
-    public boolean getRememberMe(){
-        return rememberMe;
-    }
+    public void setRememberMe(boolean rememberMe){this.rememberMe=rememberMe;}
+
 }
