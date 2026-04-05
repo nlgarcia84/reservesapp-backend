@@ -47,7 +47,7 @@ public class RoomService {
         }
     }
 
-    // Eliminar usuario
+    // Eliminar sala
     public void deleteRoom(Long id) {
 
         Room room = roomRepository.findById(id)

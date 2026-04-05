@@ -3,6 +3,7 @@ package com.roomyapp.config;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,19 +11,32 @@ import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 
+import org.slf4j.LoggerFactory;
 /*
-Clase que genera un token para ser utlizado en el login y en el registro para poder navegar por la web sin solicitar
-contrasenya continuamente y como una forma de garantizar la autenticación del usuario
+ * Clase utilitaria para la generación y gestión de tokens JWT.
+ *
+ * Responsabilidades:
+ * - Generar tokens JWT tras autenticación (login / register)
+ * - Incluir información relevante del usuario (email, rol, rememberMe)
+ * - Configurar expiración dinámica según rememberMe
+ * - Proporcionar la clave de firma para validación del token
+ *
+ * Seguridad:
+ * - Usa algoritmo HS256
+ * - La clave secreta se obtiene desde application.properties
+ *
+ * Uso:
+ * - AuthController → genera token
+ * - JwtAuthenticationFilter → valida token
  */
 @Component
 public class JwtUtil {
 
-    // Lee la clave de las propiedades o variable de entorno JWT_SECRET
+    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
+
+    // Lee la clave de las propiedades o variable de entorno JWT_SECRET desde el applicatio.properties
     @Value("${jwt.secret}")
     private String secretKey;
-
-    //@Value("${jwt.expiration:604800000}")
-    //private long expiration;
 
     //Expiracion normal
     @Value("${jwt.expiration}")
@@ -34,16 +48,24 @@ public class JwtUtil {
 
     private Key key;
 
-    // Inicializar la clave después de inyectar las propiedades (sincronizado para evitar race conditions)
+    // Inicializa la clave de firma de forma segura (lazy initialization + thread-safe)
+    // - Lazy: solo se crea cuando se necesita
+    // - Thread-safe: synchronized evita problemas en concurrencia
+    // - secretKey es la clave única y secreta del Backend con la que firmará las tokens que generará,
     private synchronized void initKey() {
         if (key == null && secretKey != null) {
             this.key = Keys.hmacShaKeyFor(
                 Base64.getEncoder().encode(secretKey.getBytes())
             );
-            System.out.println("JwtUtil: Clave inicializada con secretKey de longitud: " + secretKey.length());
         }
     }
 
+    // Genera un token JWT con:
+    // - subject: email del usuario
+    // - claim: rol del usuario
+    // - claim: rememberMe (para control de sesión)
+    // - expiración dinámica según rememberMe (corta o larga)
+    // - firma el token con su clave (key)
     public String generateToken(String email, String role, boolean rememberMe){
         initKey();
 
@@ -57,11 +79,13 @@ public class JwtUtil {
                 .setExpiration(new Date(System.currentTimeMillis() + expirationToUse))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
-        System.out.println("Token generado (" + (rememberMe ? "REMEMBER ME" : "NORMAL") + ") para: " + email);
+        logger.info("Token generado de tipo (" + (rememberMe ? "REMEMBER ME" : "NORMAL") + ") para: " + email);
         return token;
     }
 
-    // Metodo para obtener la clave (lo usará el filtro JWT)
+    // Devuelve la clave secreta utilizada para firmar y validar tokens JWT
+    // Este metodo es utilizado por el filtro de seguridad (JwtAuthenticationFilter)
+    // para verificar la autenticidad de los tokens recibidos en cada petición
     public Key getKey() {
         initKey();
         if (key == null) {
@@ -69,9 +93,11 @@ public class JwtUtil {
         }
         return key;
     }
-
+/*
     public String getSecretKey() {
         return secretKey;
     }
+
+ */
 }
 

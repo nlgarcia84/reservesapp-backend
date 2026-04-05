@@ -2,6 +2,7 @@ package com.roomyapp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -58,6 +59,10 @@ public class SecurityConfig {
                         .requestMatchers("/auth/login").permitAll() // Endpoint público
                         .requestMatchers("/auth/register").permitAll() // Endpoint público
                         .requestMatchers("/users/**").hasRole("ADMIN") // Solo ADMIN puede acceder a usuarios
+                        .requestMatchers(HttpMethod.GET, "/rooms/**").authenticated()
+                        .requestMatchers(HttpMethod.POST, "/rooms").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/rooms/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/rooms/**").hasRole("ADMIN")
                         .anyRequest().authenticated() // Todo lo demás requiere autenticación
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
