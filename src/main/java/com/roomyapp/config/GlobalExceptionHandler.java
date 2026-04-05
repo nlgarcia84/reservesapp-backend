@@ -12,12 +12,23 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+/*
+ * Manejador global de excepciones de la aplicación.
+ *
+ * Responsabilidades:
+ * - Capturar excepciones lanzadas en controladores y servicios
+ * - Devolver respuestas HTTP estructuradas
+ * - Diferenciar errores de cliente (400) y servidor (500)
+ *
+ * Mejora:
+ * - Evita errores genéricos
+ * - Facilita integración con frontend
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // Manejar excepciones de credenciales incorrectas o usuario no encontrado
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, Object>> handleRuntimeException(
             RuntimeException ex,
