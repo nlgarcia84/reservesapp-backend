@@ -28,7 +28,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOriginPatterns(
                         "http://localhost:3000",
                         "https://reservesapp-frontend.vercel.app",
-                        "https://reservesapp-frontend-*.vercel.app"
+                        "https://reservesapp-frontend-.*\\.vercel\\.app"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
