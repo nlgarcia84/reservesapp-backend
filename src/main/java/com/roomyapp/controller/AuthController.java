@@ -32,7 +32,10 @@ import org.slf4j.LoggerFactory;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin(origins="http://localhost:3000")
+@CrossOrigin(origins={
+        "http://localhost:3000",
+        "https://reservesapp-frontend-5clg.vercel.app"
+})
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);

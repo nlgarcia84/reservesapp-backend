@@ -25,10 +25,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns(
+                .allowedOrigins(
                         "http://localhost:3000",
-                        "https://reservesapp-frontend.vercel.app",
-                        "https://reservesapp-frontend-.*\\.vercel\\.app"
+                        "https://reservesapp-frontend-5clg.vercel.app"
                 )
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")

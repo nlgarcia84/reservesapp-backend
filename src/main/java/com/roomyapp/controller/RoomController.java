@@ -11,7 +11,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/rooms")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = {
+        "http://localhost:3000",
+        "https://reservesapp-frontend-5clg.vercel.app"
+})
 public class RoomController {
     
     private static final Logger logger = LoggerFactory.getLogger(RoomController.class);

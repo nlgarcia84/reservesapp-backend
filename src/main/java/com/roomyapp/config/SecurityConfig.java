@@ -1,73 +1,58 @@
 package com.roomyapp.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.Arrays;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Component;
 
-/**
- * Clase de Configuración que se encarga de:
- * - Encriptar la contraseña
- * - Permitir endpoints públicos
- * - Definir reglas de acceso
- * - Configurar CORS y JWT
- */
+import java.security.Key;
+import java.util.Date;
 
-@Configuration
-public class SecurityConfig {
-    @Bean
-    public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
+@Component
+public class JwtUtil {
+
+    // 🔐 CLAVE SECRETA (DEBE SER FUERTE EN PRODUCCIÓN)
+    private final String SECRET = "mySuperSecretKeyForJwtGenerationThatShouldBeLongEnough123456";
+
+    // ⏳ Tiempo de expiración (ej: 24 horas)
+    private final long EXPIRATION_TIME = 1000 * 60 * 60 * 24;
+
+    // 🔑 Obtener clave para firmar tokens
+    public Key getKey() {
+        return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
 
-    // Configuración de CORS
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(java.util.Arrays.asList("http://localhost:3000"));
-        configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
-        configuration.setExposedHeaders(java.util.Arrays.asList("Authorization", "Content-Type"));
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
+    // 🔐 Generar token JWT
+    public String generateToken(String email, String role) {
+        return Jwts.builder()
+                .setSubject(email)
+                .claim("role", role)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .signWith(getKey(), SignatureAlgorithm.HS256)
+                .compact();
     }
 
-    // Configuración de seguridad
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtUtil jwtUtil) throws Exception {
+    // 🔍 Extraer claims
+    public Claims extractClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
 
-        http
-                .cors(Customizer.withDefaults()) // Usa la configuración de CORS bean definida arriba
-                .csrf(csrf -> csrf.disable()) // Necesario para Postman y desarrollo
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Sin sesiones, solo JWT
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login").permitAll() // Endpoint público
-                        .requestMatchers("/auth/register").permitAll() // Endpoint público
-                        .requestMatchers("/users/**").hasRole("ADMIN") // Solo ADMIN puede acceder a usuarios
-                        .requestMatchers(HttpMethod.GET, "/rooms/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/rooms").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/rooms/**").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/rooms/**").hasRole("ADMIN")
-                        .anyRequest().authenticated() // Todo lo demás requiere autenticación
-                )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class)
-                .httpBasic((httpBasic -> httpBasic.disable())); // Evitar login básico
+    // 👤 Extraer email
+    public String extractEmail(String token) {
+        return extractClaims(token).getSubject();
+    }
 
-        return http.build();
+    // 🔐 Validar token
+    public boolean validateToken(String token) {
+        try {
+            extractClaims(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            return false;
+        }
     }
 }
