@@ -88,4 +88,29 @@ public class RoomService {
 
         roomRepository.delete(room);
     }
+
+    /**
+     * Obtiene una sala por su ID.
+     *
+     * Busca en la base de datos una sala concreta.
+     * Si no existe, lanza una excepción.
+     *
+     * @param id identificador de la sala
+     * @return sala encontrada
+     */
+    public Room getRoomById(Long id) {
+        logger.info("RoomService.getRoomById() - Buscando sala con ID: " + id);
+
+        try {
+            Room room = roomRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+
+            logger.info("RoomService.getRoomById() - Sala encontrada: " + room.getName());
+            return room;
+
+        } catch (Exception e) {
+            logger.error("RoomService.getRoomById() - Error: " + e.getMessage(), e);
+            throw new RuntimeException("Error al obtener sala: " + e.getMessage(), e);
+        }
+    }
 }

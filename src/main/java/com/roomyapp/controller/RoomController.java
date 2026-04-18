@@ -56,6 +56,29 @@ public class RoomController {
     }
 
     /**
+     * Endpoint para obtener una sala por ID.
+     *
+     * Método: GET /rooms/{id}
+     *
+     * @param id identificador de la sala
+     * @return sala encontrada
+     */
+    @GetMapping("/{id}")
+    public Room getRoomById(@PathVariable Long id) {
+
+        logger.info("GET /rooms/{} - Obteniendo detalle de sala", id);
+
+        try {
+            return roomService.getRoomById(id);
+
+        } catch (Exception e) {
+            logger.error("Error al obtener sala: " + e.getMessage(), e);
+            throw e;
+        }
+    }
+
+
+    /**
      * Endpoint para crear una nueva sala.
      *
      * Metodo: POST /rooms

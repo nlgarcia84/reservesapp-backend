@@ -71,6 +71,13 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.OPTIONS).permitAll()//Permite peticiones OPTIONS (necesarias para CORS).
                 .requestMatchers("/auth/login", "/auth/register").permitAll()//Endpoints públicos (no requieren autenticación).
                 .requestMatchers("/health", "/health/**").permitAll()//Endpoint de salud (útil para deploy/monitorización).
+
+                // ROOMS
+                .requestMatchers(HttpMethod.GET, "/rooms/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/rooms").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/rooms/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/rooms/**").hasRole("ADMIN")
+
                 .anyRequest().authenticated()//Cualquier otro endpoint requiere autenticación
             .and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)//Configura la aplicación como stateless (sin sesiones).
