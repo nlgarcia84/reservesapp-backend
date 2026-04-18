@@ -8,20 +8,40 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-
+/**
+ * Controlador REST para la gestión de salas.
+ *
+ * Expone endpoints relacionados con las salas:
+ * - Obtener listado de salas
+ * - Crear nuevas salas
+ * - Eliminar salas
+ *
+ * Este controlador actúa como intermediario entre el frontend y la capa de servicio.
+ * Recibe las peticiones HTTP y delega la lógica en RoomService.
+ */
 @RestController
 @RequestMapping("/rooms")
 public class RoomController {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(RoomController.class);
     private RoomService roomService;
 
-    //Constructor con inyeccion del servicio como parámetro
+    /**
+     * Constructor con inyección de dependencia del servicio de salas.
+     *
+     * @param roomService servicio que contiene la lógica de negocio de salas
+     */
     public RoomController (RoomService roomService){
         this.roomService = roomService;
     }
 
-    //Obtener todas las salas
+    /**
+     * Endpoint para obtener todas las salas.
+     *
+     * Metodo: GET /rooms
+     *
+     * @return lista de salas disponibles
+     */
     @GetMapping
     public List<Room> getRooms(){
         logger.info("GET /rooms - Obteniendo lista de salas");
@@ -35,7 +55,14 @@ public class RoomController {
         }
     }
 
-    //Crear una nueva sala
+    /**
+     * Endpoint para crear una nueva sala.
+     *
+     * Metodo: POST /rooms
+     *
+     * @param room objeto Room recibido desde el frontend
+     * @return sala creada y persistida en base de datos
+     */
     @PostMapping
     public Room createRooms(@RequestBody Room room){
         logger.info("POST /rooms - Creando nueva sala: " + room.getName() + " con capacidad: " + room.getCapacity());
@@ -48,9 +75,15 @@ public class RoomController {
             throw e;
         }
     }
-
+    /**
+     * Endpoint para eliminar una sala por ID.
+     *
+     * Metodo: DELETE /rooms/{id}
+     *
+     * @param id identificador de la sala a eliminar
+     */
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
+    public void deleteRoom(@PathVariable Long id) {
         roomService.deleteRoom(id);
     }
 
