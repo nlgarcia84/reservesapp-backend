@@ -9,19 +9,41 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+/**
+ * Servicio encargado de la lógica de negocio relacionada con las salas.
+ *
+ * Actúa como intermediario entre el controlador (RoomController)
+ * y el repositorio (RoomRepository).
+ *
+ * Se encarga de:
+ * - Obtener salas desde la base de datos
+ * - Crear nuevas salas
+ * - Eliminar salas existentes
+ *
+ * Aquí es donde se debería añadir cualquier validación o lógica adicional
+ * antes de acceder a la base de datos.
+ */
 @Service
 public class RoomService {
 
     private static final Logger logger = LoggerFactory.getLogger(RoomService.class);
     private final RoomRepository roomRepository;
 
-    //Inyeccion de repositorio dentro del servicio
+    /**
+     * Constructor con inyección de dependencia del repositorio.
+     *
+     * @param roomRepository repositorio de acceso a datos de salas
+     */
     public RoomService(RoomRepository roomRepository){
         this.roomRepository = roomRepository;
         logger.info("RoomService inicializado");
     }
 
-    //Obtener todas las salas
+    /**
+     * Obtiene todas las salas de la base de datos.
+     *
+     * @return lista de salas
+     */
     public List<Room> getRooms(){
         logger.info("RoomService.getRooms() - Consultando base de datos");
         try {
@@ -34,7 +56,12 @@ public class RoomService {
         }
     }
 
-    //Crear una nueva sala
+    /**
+     * Crea y guarda una nueva sala en la base de datos.
+     *
+     * @param room objeto Room recibido desde el controlador
+     * @return sala guardada con ID generado
+     */
     public Room createRoom(Room room){
         logger.info("RoomService.createRoom() - Guardando sala: " + room.getName());
         try {
@@ -47,7 +74,13 @@ public class RoomService {
         }
     }
 
-    // Eliminar sala
+    /**
+     * Elimina una sala por su ID.
+     *
+     * Primero verifica que la sala existe.
+     *
+     * @param id identificador de la sala
+     */
     public void deleteRoom(Long id) {
 
         Room room = roomRepository.findById(id)
