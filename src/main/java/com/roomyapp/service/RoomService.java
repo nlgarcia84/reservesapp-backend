@@ -1,5 +1,6 @@
 package com.roomyapp.service;
 
+import com.roomyapp.dto.RoomRequest;
 import com.roomyapp.entity.Room;
 import com.roomyapp.entity.User;
 import com.roomyapp.repository.RoomRepository;
@@ -59,12 +60,24 @@ public class RoomService {
     /**
      * Crea y guarda una nueva sala en la base de datos.
      *
-     * @param room objeto Room recibido desde el controlador
+     * @param request datos de la sala recibidos desde el controlador (DTO)
      * @return sala guardada con ID generado
      */
-    public Room createRoom(Room room){
-        logger.info("RoomService.createRoom() - Guardando sala: " + room.getName());
+    public Room createRoom(RoomRequest request){
+        logger.info("RoomService.createRoom() - Guardando sala: " + request.getName());
         try {
+            //Mapeamos DTO -> Entity
+            Room room = new Room();
+
+            room.setName(request.getName());
+            room.setCapacity(request.getCapacity());
+            room.setDescription(request.getDescription());
+            room.setImageUrl(request.getImageUrl());
+            room.setHasProjector(request.isHasProjector());
+            room.setHasWhiteboard(request.isHasWhiteboard());
+            room.setHasTv(request.isHasTv());
+            room.setHasAirConditioning(request.isHasAirConditioning());
+
             Room savedRoom = roomRepository.save(room);
             logger.info("RoomService.createRoom() - Sala guardada con ID: " + savedRoom.getId());
             return savedRoom;

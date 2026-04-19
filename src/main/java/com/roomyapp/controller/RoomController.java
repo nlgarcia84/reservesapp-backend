@@ -1,10 +1,12 @@
 package com.roomyapp.controller;
 
+import com.roomyapp.dto.RoomRequest;
 import com.roomyapp.entity.Room;
 import com.roomyapp.service.RoomService;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -83,14 +85,14 @@ public class RoomController {
      *
      * Metodo: POST /rooms
      *
-     * @param room objeto Room recibido desde el frontend
+     * @param request datos de la sala recibidos desde el frontend (DTO)
      * @return sala creada y persistida en base de datos
      */
     @PostMapping
-    public Room createRooms(@RequestBody Room room){
-        logger.info("POST /rooms - Creando nueva sala: " + room.getName() + " con capacidad: " + room.getCapacity());
+    public Room createRooms(@Valid @RequestBody RoomRequest request){
+        logger.info("POST /rooms - Creando nueva sala: " + request.getName() + " con capacidad: " + request.getCapacity());
         try {
-            Room createdRoom = roomService.createRoom(room);
+            Room createdRoom = roomService.createRoom(request);
             logger.info("Sala creada exitosamente con ID: " + createdRoom.getId());
             return createdRoom;
         } catch (Exception e) {

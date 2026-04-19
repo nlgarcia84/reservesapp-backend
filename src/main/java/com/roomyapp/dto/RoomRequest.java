@@ -1,34 +1,12 @@
-package com.roomyapp.entity;
+package com.roomyapp.dto;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 
-/**
- * Entidad que representa una sala dentro del sistema.
- *
- * Esta clase está mapeada a una tabla en la base de datos mediante JPA.
- *
- * Contiene la información básica de una sala:
- * - Identificador único
- * - Nombre de la sala
- * - Capacidad máxima de personas
- *
- * Es utilizada en la gestión de salas y en futuras funcionalidades
- * como reservas.
- */
-@Entity
-public class Room {
-    /**
-     * Identificador único de la sala.
-     * Se genera automáticamente en la base de datos.
-     */
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
+public class RoomRequest {
+    @NotBlank(message = "El nombre es obligatorio")
     private String name;
+    @Min(value = 1, message = "La capacidad debe ser mayor que 0")
     private int capacity;
     private String description;
     private String imageUrl;
@@ -37,19 +15,7 @@ public class Room {
     private boolean hasTv;
     private boolean hasAirConditioning;
 
-
-    //Constructor
-    public Room(){}
-
-    //Getters y Setters
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    public RoomRequest() {}
 
     public String getName() {
         return name;
