@@ -4,6 +4,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Entidad que representa una sala dentro del sistema.
@@ -113,5 +116,16 @@ public class Room {
 
     public void setHasAirConditioning(boolean hasAirConditioning) {
         this.hasAirConditioning = hasAirConditioning;
+    }
+
+    @JsonProperty("equipment")
+    public List<String> getEquipment(){
+        List<String> equipment = new ArrayList<>();
+         if(hasProjector) equipment.add("PROJECTOR");
+         if(hasWhiteboard) equipment.add("WHITEBOARD");
+         if(hasTv) equipment.add("TV");
+         if(hasAirConditioning) equipment.add("AIR");
+
+         return equipment;
     }
 }
