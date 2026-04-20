@@ -101,6 +101,19 @@ public class RoomController {
         }
     }
     /**
+     * Endpoint para actualizar una sala.
+     *
+     * Metodo: POST /rooms
+     *
+     * @param request datos de la sala recibidos desde el frontend (DTO) y el ID dela sala
+     * @return sala actualizada y persistida en base de datos
+     */
+    @PutMapping("/{id}")
+    public Room updateRoom(@PathVariable Long id, @RequestBody RoomRequest request) {
+        return roomService.updateRoom(id, request);
+    }
+
+    /**
      * Endpoint para eliminar una sala por ID.
      *
      * Metodo: DELETE /rooms/{id}

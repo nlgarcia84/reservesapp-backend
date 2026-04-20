@@ -88,6 +88,32 @@ public class RoomService {
     }
 
     /**
+     * Actualiza y guarda una sala en la base de datos.
+     *
+     * @param request datos de la sala recibidos desde el controlador (DTO) y el ID de la sala a modificar
+     * @return sala actulizada con ID enviado
+     */
+
+    public Room updateRoom(Long id, RoomRequest request) {
+        Room room = roomRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+
+        // actualizar campos
+        room.setName(request.getName());
+        room.setCapacity(request.getCapacity());
+        room.setDescription(request.getDescription());
+        room.setImageUrl(request.getImageUrl());
+
+        room.setHasProjector(request.isHasProjector());
+        room.setHasWhiteboard(request.isHasWhiteboard());
+        room.setHasTv(request.isHasTv());
+        room.setHasAirConditioning(request.isHasAirConditioning());
+
+        return roomRepository.save(room);
+    }
+
+
+    /**
      * Elimina una sala por su ID.
      *
      * Primero verifica que la sala existe.
