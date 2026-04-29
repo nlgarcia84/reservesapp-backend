@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Entity
 public class Reservation {
@@ -12,26 +13,49 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name="room_id")
+    private Long roomId;
+
+    @Column(name="user_id")
+    private Long userId;
+
+    @Column(name="date")
     private LocalDate date;
-    private LocalTime time;
 
-    @ManyToOne
-    private User user;
+    @Column(name="start_time")
+    private LocalTime startTime;
 
-    @ManyToOne
-    private Room room;
+    @Column(name="end_time")
+    private LocalTime endTime;
 
-    //constructor
+    //para evitar bugs y controlar la tabla de invitados
+    @ElementCollection
+    @CollectionTable(name = "reservation_guests", joinColumns = @JoinColumn(name = "reservation_id"))
+    @Column(name = "guest")
+    private List<String> guests;
+
     public Reservation(){}
 
-    //Getters y Setters
+    // getters & setters
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public LocalDate getDate() {
@@ -42,27 +66,27 @@ public class Reservation {
         this.date = date;
     }
 
-    public LocalTime getTime() {
-        return time;
+    public LocalTime getStartTime() {
+        return startTime;
     }
 
-    public void setTime(LocalTime time) {
-        this.time = time;
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
     }
 
-    public User getUser() {
-        return user;
+    public LocalTime getEndTime() {
+        return endTime;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
     }
 
-    public Room getRoom() {
-        return room;
+    public List<String> getGuests() {
+        return guests;
     }
 
-    public void setRoom(Room room) {
-        this.room = room;
+    public void setGuests(List<String> guests) {
+        this.guests = guests;
     }
 }

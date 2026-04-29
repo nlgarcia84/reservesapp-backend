@@ -55,17 +55,19 @@ public class JwtUtil {
      * @param rememberMe indica si se debe generar un token con mayor duración
      * @return token JWT firmado
      */
-    public String generateToken(String email, String role, boolean rememberMe) {
+    public String generateToken(String email, String role, boolean rememberMe, Long userId) {
         long expirationTime = rememberMe ? EXTENDED_EXPIRATION_TIME : EXPIRATION_TIME;
         
         return Jwts.builder()
                 .setSubject(email)
                 .claim("role", role)
+                .claim("userid",userId)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
+
 
     /**
      * Extrae todos los datos (claims) del token.
@@ -79,6 +81,14 @@ public class JwtUtil {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
+    }
+
+     /*
+      * Método para extraer el Id
+      */
+
+    public Long extractUserId(String token) {
+        return extractClaims(token).get("userId", Long.class);
     }
 
     /**

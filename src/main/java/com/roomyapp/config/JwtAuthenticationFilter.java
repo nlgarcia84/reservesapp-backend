@@ -118,6 +118,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                  */
                 String email = claims.getSubject();
                 String role = (String) claims.get("role");
+                //Long userId = ((Number) claims.get("userId")).longValue(); //Añadimos esto para Reservas
+                Object userIdObj = claims.get("userId");
+
+                Long userId = userIdObj != null
+                        ? ((Number) userIdObj).longValue()
+                        : null;
 
                 logger.info("Usuario autenticado: {} con rol {}", email, role);
 
@@ -134,7 +140,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                  * Crea el objeto de autenticación.
                  */
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(email, null, authorities);
+                        new UsernamePasswordAuthenticationToken(userId, null, authorities);
+
+                authentication.setDetails(email); // 👈 guardas email aquí
 
                 /**
                  * Guarda el usuario autenticado en el contexto de seguridad.

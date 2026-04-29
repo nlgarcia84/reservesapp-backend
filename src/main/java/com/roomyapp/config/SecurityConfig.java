@@ -77,6 +77,8 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/rooms").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/rooms/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/rooms/**").hasRole("ADMIN")
+                //RESERVATIONS
+                .requestMatchers("/reservations/**").permitAll()
 
                 .anyRequest().authenticated()//Cualquier otro endpoint requiere autenticación
             .and()

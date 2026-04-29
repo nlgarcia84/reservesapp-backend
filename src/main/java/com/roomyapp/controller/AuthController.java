@@ -71,7 +71,8 @@ public class AuthController {
             String token= jwtUtil.generateToken(
                     user.getEmail(),
                     user.getRole().name(),
-                    request.getRememberMe() //login necesita saber si tiene que recordar la pass
+                    request.getRememberMe(), //login necesita saber si tiene que recordar la pass
+                    user.getId() //NECESARIO PARA RESERVAS
             );
             logger.info("Login exitoso para usuario " + user.getName() +", con email "+ user.getEmail());
 
@@ -120,7 +121,8 @@ public class AuthController {
             String token = jwtUtil.generateToken(
                     user.getEmail(),
                     user.getRole().name(),
-                    false //El registro no necesita de un jwt para recordar
+                    false, //El registro no necesita de un jwt para recordar
+                    user.getId() //NECESARIO PARA RESERVAS
             );
             //Confirmación en log - terminal de registro exitoso
             logger.info("Registro exitoso para usuario: " + user.getName() + " ,con email " +user.getEmail());
