@@ -33,7 +33,7 @@ public class ReservationRequest {
     @JsonProperty("end_time")
     private String end_time;
 
-    private List<String> guests;
+    private List<Long> guests;
 
     // Constructor vacío
     public ReservationRequest() {}
@@ -80,11 +80,11 @@ public class ReservationRequest {
         this.end_time = end_time;
     }
 
-    public List<String> getGuests() {
+    public List<Long> getGuests() {
         return guests;
     }
 
-    public void setGuests(List<String> guests) {
+    public void setGuests(List<Long> guests) {
         this.guests = guests;
     }
 

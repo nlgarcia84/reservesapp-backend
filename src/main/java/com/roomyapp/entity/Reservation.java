@@ -1,10 +1,17 @@
 package com.roomyapp.entity;
 
-import jakarta.persistence.*;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+
+import jakarta.persistence.CollectionTable;
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 
 @Entity
 public class Reservation {
@@ -32,7 +39,7 @@ public class Reservation {
     @ElementCollection
     @CollectionTable(name = "reservation_guests", joinColumns = @JoinColumn(name = "reservation_id"))
     @Column(name = "guest")
-    private List<String> guests;
+    private List<Long> guests;
 
     public Reservation(){}
 
@@ -82,11 +89,11 @@ public class Reservation {
         this.endTime = endTime;
     }
 
-    public List<String> getGuests() {
+    public List<Long> getGuests() {
         return guests;
     }
 
-    public void setGuests(List<String> guests) {
+    public void setGuests(List<Long> guests) {
         this.guests = guests;
     }
 }

@@ -1,30 +1,32 @@
 package com.roomyapp.config;
 
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.stereotype.Component;
-
 import java.security.Key;
 import java.util.Date;
+
+import org.springframework.stereotype.Component;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 
 /**
  * Clase utilitaria para la gestión de tokens JWT.
  *
- * Se encarga de:
- * - Generar tokens JWT al hacer login o registro
- * - Firmar los tokens con una clave secreta
- * - Extraer información (claims) del token
- * - Validar si un token es correcto o ha expirado
+ * Se encarga de: - Generar tokens JWT al hacer login o registro - Firmar los
+ * tokens con una clave secreta - Extraer información (claims) del token -
+ * Validar si un token es correcto o ha expirado
  *
- * Esta clase es utilizada por el controlador de autenticación
- * y por el filtro JWT para validar peticiones.
+ * Esta clase es utilizada por el controlador de autenticación y por el filtro
+ * JWT para validar peticiones.
  */
 @Component
 public class JwtUtil {
 
     /**
-     * Clave secreta utilizada para firmar los tokens.
-     * En producción debe ser segura, larga y almacenarse en variables de entorno.
+     * Clave secreta utilizada para firmar los tokens. En producción debe ser
+     * segura, larga y almacenarse en variables de entorno.
      */
     private final String SECRET = "mySuperSecretKeyForJwtGenerationThatShouldBeLongEnough123456";
 
@@ -57,17 +59,16 @@ public class JwtUtil {
      */
     public String generateToken(String email, String role, boolean rememberMe, Long userId) {
         long expirationTime = rememberMe ? EXTENDED_EXPIRATION_TIME : EXPIRATION_TIME;
-        
+
         return Jwts.builder()
                 .setSubject(email)
                 .claim("role", role)
-                .claim("userid",userId)
+                .claim("userId", userId) // Mantenim camelCase per coherència amb el mètode d'extracció
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
-
 
     /**
      * Extrae todos los datos (claims) del token.
@@ -83,12 +84,17 @@ public class JwtUtil {
                 .getBody();
     }
 
-     /*
+    /*
       * Método para extraer el Id
-      */
-
+     */
     public Long extractUserId(String token) {
-        return extractClaims(token).get("userId", Long.class);
+        // Obtenim el claim "userId". Fem un cast segur ja que sovint 
+        // els números petits es descodifiquen com Integer.
+        Object userId = extractClaims(token).get("userId");
+        if (userId instanceof Integer) {
+            return ((Integer) userId).longValue();
+        }
+        return (Long) userId;
     }
 
     /**
@@ -104,9 +110,7 @@ public class JwtUtil {
     /**
      * Valida si un token es correcto.
      *
-     * Comprueba:
-     * - Firma válida
-     * - Token no expirado
+     * Comprueba: - Firma válida - Token no expirado
      *
      * @param token token JWT
      * @return true si es válido, false si es inválido o ha expirado
