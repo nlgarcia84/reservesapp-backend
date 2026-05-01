@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -20,19 +22,21 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="room_id")
+    @Column(name = "room_id")
     private Long roomId;
 
-    @Column(name="user_id")
+    @Column(name = "user_id")
     private Long userId;
 
-    @Column(name="date")
+    @Column(name = "date")
     private LocalDate date;
 
-    @Column(name="start_time")
+    @Column(name = "start_time")
+    @JsonFormat(pattern = "HH:mm") 
     private LocalTime startTime;
 
-    @Column(name="end_time")
+    @Column(name = "end_time")
+    @JsonFormat(pattern = "HH:mm") 
     private LocalTime endTime;
 
     //para evitar bugs y controlar la tabla de invitados
@@ -41,10 +45,10 @@ public class Reservation {
     @Column(name = "guest")
     private List<Long> guests;
 
-    public Reservation(){}
+    public Reservation() {
+    }
 
     // getters & setters
-
     public Long getId() {
         return id;
     }

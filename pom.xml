@@ -80,6 +80,12 @@
             <version>0.11.5</version>
             <scope>runtime</scope>
         </dependency>
+        
+        <!-- Dependencia para manejar LocalDate y LocalTime en JSON -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
 
         <!-- Spring Boot Test (incluye JUnit + Mockito + más) -->
         <dependency>

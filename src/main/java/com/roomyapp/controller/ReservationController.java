@@ -1,12 +1,23 @@
 package com.roomyapp.controller;
 
+import java.util.List;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.roomyapp.dto.ReservationRequest;
 import com.roomyapp.entity.Reservation;
 import com.roomyapp.service.ReservationService;
+
 import jakarta.validation.Valid;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.security.core.Authentication;
-import java.util.List;
 
 /**
  * Controlador REST para la gestión de reservas.
@@ -23,6 +34,19 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
+    @GetMapping("/room/{roomId}")
+    public ResponseEntity<?> getReservationsByRoom(@PathVariable Long roomId) {
+        try {
+            System.out.println("DEBUG: Buscant reserves per a la sala ID: " + roomId);
+            List<Reservation> reservations = reservationService.getReservationsByRoom(roomId);
+            System.out.println("DEBUG: Reserves trobades: " + reservations.size());
+            return ResponseEntity.ok(reservations);
+        } catch (Exception e) {
+            // AIXÒ IMPRIMIRÀ L'ERROR REAL A LA CONSOLA DE L'IDE
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Error en el servidor: " + e.getMessage());
+        }
+    }
     // NUEVO: reservas del usuario autenticado
 
     @GetMapping("/my-bookings")
@@ -34,16 +58,14 @@ public class ReservationController {
     }
 
 
-   /*
+    /*
 
     @GetMapping("/my-bookings")
     public List<Reservation> getMyReservations(Authentication authentication) {
         String email = authentication.getName(); // 👈 viene del token
         return reservationService.getReservationsByUser(email);
     }
-    */
-
-
+     */
     // 1. Crear reserva
     @PostMapping
     public Reservation createReservation(@Valid @RequestBody ReservationRequest request) {

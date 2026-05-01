@@ -1,13 +1,15 @@
 package com.roomyapp.service;
 
-import com.roomyapp.dto.ReservationRequest;
-import com.roomyapp.entity.Reservation;
-import com.roomyapp.repository.ReservationRepository;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Service;
+
+import com.roomyapp.dto.ReservationRequest;
+import com.roomyapp.entity.Reservation;
+import com.roomyapp.repository.ReservationRepository;
 
 @Service
 public class ReservationService {
@@ -21,14 +23,13 @@ public class ReservationService {
     // 1. Crear reserva
     public Reservation createReservation(ReservationRequest request) {
 
-        // 🔥 PARSEO (CLAVE)
         LocalDate date = LocalDate.parse(request.getDate());
         LocalTime startTime = LocalTime.parse(request.getStartTime());
         LocalTime endTime = LocalTime.parse(request.getEndTime());
 
         // Validar solapamientos
-        List<Reservation> existingReservations =
-                reservationRepository.findByRoomIdAndDate(request.getRoomId(), date);
+        List<Reservation> existingReservations
+                = reservationRepository.findByRoomIdAndDate(request.getRoomId(), date);
 
         for (Reservation existing : existingReservations) {
             if (isOverlapping(
@@ -60,7 +61,7 @@ public class ReservationService {
     }
 
     // 3. Obtener por ID
-    public Reservation getReservationById(Long id) {
+    public Reservation getReservationById(@NonNull Long id) {
         return reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
     }
@@ -71,7 +72,7 @@ public class ReservationService {
     }
 
     // 5. Actualizar reserva
-    public Reservation updateReservation(Long id, ReservationRequest request) {
+    public Reservation updateReservation(@NonNull Long id, ReservationRequest request) {
 
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
@@ -82,12 +83,12 @@ public class ReservationService {
         LocalTime endTime = LocalTime.parse(request.getEndTime());
 
         // Validar solapamientos (excluyendo la propia reserva)
-        List<Reservation> existingReservations =
-                reservationRepository.findByRoomIdAndDate(request.getRoomId(), date);
+        List<Reservation> existingReservations
+                = reservationRepository.findByRoomIdAndDate(request.getRoomId(), date);
 
         for (Reservation existing : existingReservations) {
-            if (!existing.getId().equals(id) &&
-                    isOverlapping(
+            if (!existing.getId().equals(id)
+                    && isOverlapping(
                             existing.getStartTime(),
                             existing.getEndTime(),
                             startTime,
@@ -109,7 +110,7 @@ public class ReservationService {
     }
 
     // 6. Eliminar reserva
-    public void deleteReservation(Long id) {
+    public void deleteReservation(@NonNull Long id) {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
 
@@ -125,4 +126,10 @@ public class ReservationService {
     ) {
         return start1.isBefore(end2) && start2.isBefore(end1);
     }
+
+    // 7. Obtener reservas de una sala (modo empleado)
+    public List<Reservation> getReservationsByRoom(Long roomId) {
+        return reservationRepository.findByRoomId(roomId);
+    }
+
 }
