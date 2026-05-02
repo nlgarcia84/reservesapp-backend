@@ -23,6 +23,15 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     // Buscar reservas de un usuario (modo empleado)
     List<Reservation> findByUserId(Long userId);
 
+    /**
+     * Busca reserves on l'usuari és el creador (userId) O el seu ID es troba
+     * dins de la llista de convidats (guests).
+     */
+    @Query("SELECT DISTINCT r FROM Reservation r "
+            + "LEFT JOIN r.guests g "
+            + "WHERE r.userId = :userId OR g = :userId")
+    List<Reservation> findAllByUserOrGuest(@Param("userId") Long userId);
+
     // Buscar todas las reservas de una sala ordenadas por fecha y hora de inicio
     @Query("SELECT r FROM Reservation r WHERE r.roomId = :roomId ORDER BY r.date ASC, r.startTime ASC")
     List<Reservation> findByRoomId(@Param("roomId") Long roomId);

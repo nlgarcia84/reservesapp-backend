@@ -68,7 +68,7 @@ public class ReservationService {
 
     // 4. Obtener reservas de un usuario
     public List<Reservation> getReservationsByUser(Long userId) {
-        return reservationRepository.findByUserId(userId);
+        return reservationRepository.findAllByUserOrGuest(userId);
     }
 
     // 5. Actualizar reserva

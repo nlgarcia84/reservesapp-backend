@@ -32,11 +32,11 @@ public class Reservation {
     private LocalDate date;
 
     @Column(name = "start_time")
-    @JsonFormat(pattern = "HH:mm") 
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime startTime;
 
     @Column(name = "end_time")
-    @JsonFormat(pattern = "HH:mm") 
+    @JsonFormat(pattern = "HH:mm")
     private LocalTime endTime;
 
     //para evitar bugs y controlar la tabla de invitados
