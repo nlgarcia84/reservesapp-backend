@@ -6,6 +6,7 @@ import com.roomyapp.entity.Reservation;
 import com.roomyapp.entity.Room;
 import com.roomyapp.repository.ReservationRepository;
 import com.roomyapp.repository.RoomRepository;
+import com.roomyapp.repository.UserRepository;
 
 import java.time.LocalTime;
 import java.util.List;
@@ -21,7 +22,7 @@ public class ReservationServiceTest {
     @Test
     void testSolapamiento_true() {
 
-        ReservationService service = new ReservationService(null, null);
+        ReservationService service = new ReservationService(null, null,  null);
 
         LocalTime start1 = LocalTime.of(10, 0);
         LocalTime end1 = LocalTime.of(11, 0);
@@ -37,7 +38,7 @@ public class ReservationServiceTest {
     @Test
     void testSolapamiento_false() {
 
-        ReservationService service = new ReservationService(null, null);
+        ReservationService service = new ReservationService(null, null, null );
 
         LocalTime start1 = LocalTime.of(10, 0);
         LocalTime end1 = LocalTime.of(11, 0);
@@ -55,8 +56,9 @@ public class ReservationServiceTest {
 
         ReservationRepository repo = mock(ReservationRepository.class);
         RoomRepository roomRepo = mock(RoomRepository.class);
+        UserRepository userRepo = mock(UserRepository.class);
 
-        ReservationService service = new ReservationService(repo, roomRepo);
+        ReservationService service = new ReservationService(repo, roomRepo, userRepo);
 
         ReservationRequest request = new ReservationRequest();
         request.setRoomId(1L);
@@ -90,7 +92,7 @@ public class ReservationServiceTest {
         ReservationResponse resultado = service.createReservation(request);
 
         assertNotNull(resultado);
-        assertEquals("Sala Reunions", resultado.getRoomName());
+        assertEquals("Sala Reunions", resultado.getRoom().getName());
         assertEquals(1L, resultado.getRoomId());
         assertEquals(1L, resultado.getUserId());
 
@@ -102,8 +104,9 @@ public class ReservationServiceTest {
 
         ReservationRepository repo = mock(ReservationRepository.class);
         RoomRepository roomRepo = mock(RoomRepository.class);
+        UserRepository userRepo = mock(UserRepository.class);
 
-        ReservationService service = new ReservationService(repo, roomRepo);
+        ReservationService service = new ReservationService(repo, roomRepo, userRepo);
 
         ReservationRequest request = new ReservationRequest();
         request.setRoomId(1L);

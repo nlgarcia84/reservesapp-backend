@@ -66,13 +66,9 @@ public class ReservationController {
      */
     @PostMapping
     public ReservationResponse createReservation(@Valid @RequestBody ReservationRequest request) {
-<<<<<<< HEAD
         return reservationService.createReservation(request);
-=======
-        return
-                reservationService.createReservation(request);
->>>>>>> main
     }
+
 
     /**
      * Obtener todas las reservas (modo admin)

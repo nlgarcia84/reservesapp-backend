@@ -149,7 +149,7 @@ public class ReservationService {
     }
 
     // SOLUCIÓN DEFINITIVA DEL ERROR
-    private boolean isOverlapping(
+    public boolean isOverlapping(
             LocalTime start1,
             LocalTime end1,
             LocalTime start2,
