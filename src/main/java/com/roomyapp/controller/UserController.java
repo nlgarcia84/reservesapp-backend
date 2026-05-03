@@ -2,8 +2,13 @@ package com.roomyapp.controller;
 
 import com.roomyapp.entity.User;
 import com.roomyapp.service.UserService;
+//import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 /*
  * Controlador encargado de la gestión de usuarios.
  *
@@ -72,4 +77,18 @@ public class UserController {
     public List<User> getUsers() {
         return userService.getAllUsers();
     }
+
+    //Método para visualizar usuarios online
+    @GetMapping("/online")
+    public Map<String, Long> getOnlineUsers(Authentication authentication) {
+
+        Long userId = (Long) authentication.getPrincipal();
+
+        userService.markUserAsActive(userId);
+
+        long count = userService.getOnlineUsersCount();
+
+        return Collections.singletonMap("count", count);
+    }
+
 }

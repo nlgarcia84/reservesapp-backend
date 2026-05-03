@@ -2,7 +2,10 @@ package com.roomyapp.repository;
 
 import com.roomyapp.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 /*
@@ -35,4 +38,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Busca un usuario por su email
     // Devuelve Optional para gestionar el caso en que no exista el usuario
     Optional<User> findByEmail(String email);
+
+    //Cuenta usuarios en linea
+
+    /*
+     *  @Query("SELECT COUNT(u) FROM User u WHERE u.lastLogin >= :time")
+         long countUsersActiveSince(@Param("time") LocalDateTime time);
+     */
 }
+
