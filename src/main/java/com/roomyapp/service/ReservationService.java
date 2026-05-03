@@ -4,6 +4,13 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
+import com.roomyapp.dto.ReservationResponse;
+import com.roomyapp.dto.RoomDTO;
+import com.roomyapp.dto.UserDTO;
+import com.roomyapp.entity.Room;
+import com.roomyapp.entity.User;
+import com.roomyapp.repository.RoomRepository;
+import com.roomyapp.repository.UserRepository;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +23,20 @@ public class ReservationService {
 
     private final ReservationRepository reservationRepository;
 
-    public ReservationService(ReservationRepository reservationRepository) {
+    //Inyección de repositorios necesarios para dar informacion
+    //completa de la reserva
+    private final RoomRepository roomRepository;
+    private final UserRepository userRepository;
+
+    //Constructor
+    public ReservationService(ReservationRepository reservationRepository, RoomRepository roomRepository, UserRepository userRepository) {
         this.reservationRepository = reservationRepository;
+        this.roomRepository = roomRepository;
+        this.userRepository = userRepository;
     }
 
     // 1. Crear reserva
-    public Reservation createReservation(ReservationRequest request) {
+    public ReservationResponse createReservation(ReservationRequest request) {
 
         LocalDate date = LocalDate.parse(request.getDate());
         LocalTime startTime = LocalTime.parse(request.getStartTime());
@@ -52,32 +67,44 @@ public class ReservationService {
         reservation.setEndTime(endTime);
         reservation.setGuests(request.getGuests());
 
-        return reservationRepository.save(reservation);
+        // Guardar en BD
+        Reservation saved = reservationRepository.save(reservation);
+
+        // devolver DTO (IMPORTANTE)
+        return mapToResponse(saved);
     }
 
     // 2. Obtener todas (admin)
-    public List<Reservation> getAllReservations() {
-        return reservationRepository.findAll();
+    public List<ReservationResponse> getAllReservations() {
+        return reservationRepository.findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     // 3. Obtener por ID
-    public Reservation getReservationById(@NonNull Long id) {
-        return reservationRepository.findById(id)
+    public ReservationResponse getReservationById(@NonNull Long id) {
+        Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
+
+        return mapToResponse(reservation);
     }
 
     // 4. Obtener reservas de un usuario
-    public List<Reservation> getReservationsByUser(Long userId) {
-        return reservationRepository.findAllByUserOrGuest(userId);
+    public List<ReservationResponse> getReservationsByUser(Long userId) {
+        return reservationRepository.findAllByUserOrGuest(userId)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     // 5. Actualizar reserva
-    public Reservation updateReservation(@NonNull Long id, ReservationRequest request) {
+    public ReservationResponse updateReservation(@NonNull Long id, ReservationRequest request) {
 
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada"));
 
-        // 🔥 PARSEO
+        // PARSEO
         LocalDate date = LocalDate.parse(request.getDate());
         LocalTime startTime = LocalTime.parse(request.getStartTime());
         LocalTime endTime = LocalTime.parse(request.getEndTime());
@@ -89,11 +116,11 @@ public class ReservationService {
         for (Reservation existing : existingReservations) {
             if (!existing.getId().equals(id)
                     && isOverlapping(
-                            existing.getStartTime(),
-                            existing.getEndTime(),
-                            startTime,
-                            endTime
-                    )) {
+                    existing.getStartTime(),
+                    existing.getEndTime(),
+                    startTime,
+                    endTime
+            )) {
                 throw new RuntimeException("La sala ya está reservada en ese horario");
             }
         }
@@ -106,7 +133,11 @@ public class ReservationService {
         reservation.setEndTime(endTime);
         reservation.setGuests(request.getGuests());
 
-        return reservationRepository.save(reservation);
+        // Guardar
+        Reservation updated = reservationRepository.save(reservation);
+
+        //  IMPORTANTE devolver DTO
+        return mapToResponse(updated);
     }
 
     // 6. Eliminar reserva
@@ -117,7 +148,7 @@ public class ReservationService {
         reservationRepository.delete(reservation);
     }
 
-    // 🔥 SOLUCIÓN DEFINITIVA DEL ERROR
+    // SOLUCIÓN DEFINITIVA DEL ERROR
     private boolean isOverlapping(
             LocalTime start1,
             LocalTime end1,
@@ -128,8 +159,66 @@ public class ReservationService {
     }
 
     // 7. Obtener reservas de una sala (modo empleado)
-    public List<Reservation> getReservationsByRoom(Long roomId) {
-        return reservationRepository.findByRoomId(roomId);
+    public List<ReservationResponse> getReservationsByRoom(Long roomId) {
+        return reservationRepository.findByRoomId(roomId)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    // 8. Método mapper para convertir de nuevo la Entity en DTO para ser enviada al front como respuesta
+    public ReservationResponse mapToResponse(Reservation reservation) {
+        ReservationResponse dto = new ReservationResponse();
+
+        //básicos
+        dto.setId(reservation.getId());
+        dto.setDate(reservation.getDate().toString());
+        dto.setStartTime(reservation.getStartTime().toString());
+        dto.setEndTime(reservation.getEndTime().toString());
+
+        dto.setRoomId(reservation.getRoomId());
+        dto.setUserId(reservation.getUserId());
+        // ROOM
+        Room room = roomRepository.findById(reservation.getRoomId())
+                .orElse(null);
+
+        if (room != null) {
+            RoomDTO roomDTO = new RoomDTO();
+            roomDTO.setId(room.getId());
+            roomDTO.setName(room.getName());
+            dto.setRoom(roomDTO);
+        }
+
+        // ORGANIZER
+        User user = userRepository.findById(reservation.getUserId())
+                .orElse(null);
+
+        if (user != null) {
+            UserDTO userDTO = new UserDTO();
+            userDTO.setId(user.getId());
+            userDTO.setName(user.getName());
+            dto.setOrganizer(userDTO);
+        }
+
+        // GUESTS
+        if (reservation.getGuests() != null) {
+            List<UserDTO> guestDTOs = reservation.getGuests().stream()
+                    .map(userId -> {
+                        User guest = userRepository.findById(userId).orElse(null);
+                        if (guest == null) return null;
+
+                        UserDTO guestDTO = new UserDTO();
+                        guestDTO.setId(guest.getId());
+                        guestDTO.setName(guest.getName());
+                        return guestDTO;
+                    })
+                    .filter(g -> g != null)
+                    .toList();
+
+            dto.setGuests(guestDTOs);
+        }
+
+        return dto;
     }
 
 }
