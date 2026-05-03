@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.roomyapp.dto.ReservationRequest;
 import com.roomyapp.dto.ReservationResponse;
 import com.roomyapp.service.ReservationService;
-
+import com.roomyapp.dto.ReservationResponse;
 import jakarta.validation.Valid;
 
 /**
@@ -66,8 +66,12 @@ public class ReservationController {
      */
     @PostMapping
     public ReservationResponse createReservation(@Valid @RequestBody ReservationRequest request) {
+<<<<<<< HEAD
+        return reservationService.createReservation(request);
+=======
         return
                 reservationService.createReservation(request);
+>>>>>>> main
     }
 
     /**
