@@ -5,7 +5,11 @@ import com.roomyapp.entity.User;
 import com.roomyapp.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,4 +137,25 @@ public class UserService {
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
+
+
+    // Estructura del Servicio para contar usuarios activos
+    private final Map<Long, Long> activeUsers = new ConcurrentHashMap<>();
+
+    //Método para marcar usuario activo
+    public void markUserAsActive(Long userId) {
+        activeUsers.put(userId, System.currentTimeMillis());
+    }
+
+    //Método que cuenta usuarios online
+    public long getOnlineUsersCount() {
+        long now = System.currentTimeMillis();
+
+        activeUsers.entrySet().removeIf(entry ->
+                now - entry.getValue() > 5 * 60 * 1000
+        );
+
+        return activeUsers.size();
+    }
+
 }
