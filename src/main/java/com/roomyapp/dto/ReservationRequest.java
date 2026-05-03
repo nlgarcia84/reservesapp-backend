@@ -11,6 +11,8 @@ import java.util.List;
  * DTO para la creación y actualización de reservas.
  *
  * Representa los datos que llegan desde el frontend.
+ *
+ * Variables y JPA --> entrada de datos ha de ser snake_case
  */
 public class ReservationRequest {
 
@@ -26,7 +28,7 @@ public class ReservationRequest {
     private String date;
 
     @NotBlank
-    @JsonProperty("start_time")
+    @JsonProperty("start_time")//entre comillas, porque frontend envía String "start_time": "10:00"
     private String start_time;
 
     @NotBlank

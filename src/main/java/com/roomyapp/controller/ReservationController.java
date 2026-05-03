@@ -4,17 +4,10 @@ import java.util.List;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.roomyapp.dto.ReservationRequest;
-import com.roomyapp.entity.Reservation;
+import com.roomyapp.dto.ReservationResponse;
 import com.roomyapp.service.ReservationService;
 import com.roomyapp.dto.ReservationResponse;
 import jakarta.validation.Valid;
@@ -34,72 +27,92 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
+    /**
+     * Obtener reservas de una sala (modo empleado)
+     * Ya devuelve DTO desde el service → NO hacer map aquí
+     */
     @GetMapping("/room/{roomId}")
     public ResponseEntity<?> getReservationsByRoom(@PathVariable Long roomId) {
         try {
             System.out.println("DEBUG: Buscant reserves per a la sala ID: " + roomId);
-            List<Reservation> reservations = reservationService.getReservationsByRoom(roomId);
+
+            List<ReservationResponse> reservations =
+                    reservationService.getReservationsByRoom(roomId);
+
             System.out.println("DEBUG: Reserves trobades: " + reservations.size());
+
             return ResponseEntity.ok(reservations);
+
         } catch (Exception e) {
-            // AIXÒ IMPRIMIRÀ L'ERROR REAL A LA CONSOLA DE L'IDE
             e.printStackTrace();
             return ResponseEntity.status(500).body("Error en el servidor: " + e.getMessage());
         }
     }
-    // NUEVO: reservas del usuario autenticado
 
+    /**
+     * NUEVO: reservas del usuario autenticado
+     * Ya devuelve DTO desde el service
+     */
     @GetMapping("/my-bookings")
-    public List<Reservation> getMyReservations(Authentication authentication) {
+    public List<ReservationResponse> getMyReservations(Authentication authentication) {
         Long userId = (Long) authentication.getPrincipal(); // ✔ ID
-        String email = (String) authentication.getDetails(); // ✔ email
 
         return reservationService.getReservationsByUser(userId);
     }
 
-
-    /*
-
-    @GetMapping("/my-bookings")
-    public List<Reservation> getMyReservations(Authentication authentication) {
-        String email = authentication.getName(); // 👈 viene del token
-        return reservationService.getReservationsByUser(email);
-    }
+    /**
+     * Crear reserva
+     * Creamos entity → la convertimos a DTO para devolver al front
      */
-    // 1. Crear reserva
     @PostMapping
     public ReservationResponse createReservation(@Valid @RequestBody ReservationRequest request) {
+<<<<<<< HEAD
         return reservationService.createReservation(request);
+=======
+        return
+                reservationService.createReservation(request);
+>>>>>>> main
     }
 
-    // 2. Obtener todas (modo admin)
+    /**
+     * Obtener todas las reservas (modo admin)
+     * Ya devuelve DTO
+     */
     @GetMapping
-    public List<Reservation> getAllReservations() {
+    public List<ReservationResponse> getAllReservations() {
         return reservationService.getAllReservations();
     }
 
-    // 3. Obtener por ID
+    /**
+     * Obtener reserva por ID
+     */
     @GetMapping("/{id}")
-    public Reservation getReservationById(@PathVariable Long id) {
+    public ReservationResponse getReservationById(@PathVariable Long id) {
         return reservationService.getReservationById(id);
     }
 
-    // 4. Obtener reservas de un usuario (modo empleado)
+    /**
+     * Obtener reservas de un usuario (modo empleado)
+     */
     @GetMapping("/user/{userId}")
-    public List<Reservation> getReservationsByUser(@PathVariable Long userId) {
+    public List<ReservationResponse> getReservationsByUser(@PathVariable Long userId) {
         return reservationService.getReservationsByUser(userId);
     }
 
-    // 5. Actualizar reserva
+    /**
+     * Actualizar reserva
+     */
     @PutMapping("/{id}")
-    public Reservation updateReservation(
+    public ReservationResponse updateReservation(
             @PathVariable Long id,
             @Valid @RequestBody ReservationRequest request
     ) {
         return reservationService.updateReservation(id, request);
     }
 
-    // 6. Eliminar reserva
+    /**
+     * Eliminar reserva
+     */
     @DeleteMapping("/{id}")
     public void deleteReservation(@PathVariable Long id) {
         reservationService.deleteReservation(id);

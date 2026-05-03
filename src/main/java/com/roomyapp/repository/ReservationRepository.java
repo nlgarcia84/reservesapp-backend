@@ -24,8 +24,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findByUserId(Long userId);
 
     /**
-     * Busca reserves on l'usuari és el creador (userId) O el seu ID es troba
-     * dins de la llista de convidats (guests).
+     * Busca reservas donde el usuario es el creador (userId) O su ID se encuentre
+     * dentro de la lista de invitados (guests).
      */
     @Query("SELECT DISTINCT r FROM Reservation r "
             + "LEFT JOIN r.guests g "
