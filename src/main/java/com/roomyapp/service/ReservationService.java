@@ -10,18 +10,23 @@ import org.springframework.stereotype.Service;
 import com.roomyapp.dto.ReservationRequest;
 import com.roomyapp.entity.Reservation;
 import com.roomyapp.repository.ReservationRepository;
+import com.roomyapp.dto.ReservationResponse;
+import com.roomyapp.entity.Room;
+import com.roomyapp.repository.RoomRepository;
 
 @Service
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
+    private final RoomRepository roomRepository;
 
-    public ReservationService(ReservationRepository reservationRepository) {
+    public ReservationService(ReservationRepository reservationRepository, RoomRepository roomRepository) {
         this.reservationRepository = reservationRepository;
+        this.roomRepository = roomRepository;
     }
 
     // 1. Crear reserva
-    public Reservation createReservation(ReservationRequest request) {
+    public ReservationResponse createReservation(ReservationRequest request) {
 
         LocalDate date = LocalDate.parse(request.getDate());
         LocalTime startTime = LocalTime.parse(request.getStartTime());
@@ -52,7 +57,8 @@ public class ReservationService {
         reservation.setEndTime(endTime);
         reservation.setGuests(request.getGuests());
 
-        return reservationRepository.save(reservation);
+        Reservation saved = reservationRepository.save(reservation);
+        return toResponse(saved);
     }
 
     // 2. Obtener todas (admin)
@@ -118,7 +124,7 @@ public class ReservationService {
     }
 
     // 🔥 SOLUCIÓN DEFINITIVA DEL ERROR
-    private boolean isOverlapping(
+    public boolean isOverlapping(
             LocalTime start1,
             LocalTime end1,
             LocalTime start2,
@@ -132,4 +138,22 @@ public class ReservationService {
         return reservationRepository.findByRoomId(roomId);
     }
 
+    private ReservationResponse toResponse(Reservation reservation) {
+
+        Room room = roomRepository.findById(reservation.getRoomId())
+                .orElseThrow(() -> new RuntimeException("Sala no encontrada"));
+
+        ReservationResponse response = new ReservationResponse();
+
+        response.setId(reservation.getId());
+        response.setRoomId(reservation.getRoomId());
+        response.setRoomName(room.getName());
+        response.setUserId(reservation.getUserId());
+        response.setDate(reservation.getDate());
+        response.setStartTime(reservation.getStartTime());
+        response.setEndTime(reservation.getEndTime());
+        response.setGuests(reservation.getGuests());
+
+        return response;
+    }
 }

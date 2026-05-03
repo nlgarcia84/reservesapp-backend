@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.roomyapp.dto.ReservationRequest;
 import com.roomyapp.entity.Reservation;
 import com.roomyapp.service.ReservationService;
-
+import com.roomyapp.dto.ReservationResponse;
 import jakarta.validation.Valid;
 
 /**
@@ -68,7 +68,7 @@ public class ReservationController {
      */
     // 1. Crear reserva
     @PostMapping
-    public Reservation createReservation(@Valid @RequestBody ReservationRequest request) {
+    public ReservationResponse createReservation(@Valid @RequestBody ReservationRequest request) {
         return reservationService.createReservation(request);
     }
 
