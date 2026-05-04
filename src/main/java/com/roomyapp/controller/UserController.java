@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 /*
  * Controlador encargado de la gestión de usuarios.
  *
@@ -81,14 +83,16 @@ public class UserController {
     //Método para visualizar usuarios online
     @GetMapping("/online")
     public Map<String, Long> getOnlineUsers(Authentication authentication) {
-
-        Long userId = (Long) authentication.getPrincipal();
-
-        userService.markUserAsActive(userId);
-
-        long count = userService.getOnlineUsersCount();
-
-        return Collections.singletonMap("count", count);
+    if (authentication == null || authentication.getPrincipal() == null) {
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
     }
+
+    Long userId = ((Number) authentication.getPrincipal()).longValue();
+
+    userService.markUserAsActive(userId);
+    long count = userService.getOnlineUsersCount();
+
+    return Collections.singletonMap("count", count);
+}
 
 }
