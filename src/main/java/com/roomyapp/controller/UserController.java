@@ -2,34 +2,17 @@ package com.roomyapp.controller;
 
 import com.roomyapp.entity.User;
 import com.roomyapp.service.UserService;
-//import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
 
-import java.util.Collections;
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
-/*
- * Controlador encargado de la gestión de usuarios.
- *
- * RESPONSABILIDADES:
- * - Crear nuevos usuarios (desde panel admin)
- * - Eliminar usuarios existentes
- * - Obtener la lista de usuarios
- *
- * FLUJO:
- * - Recibe peticiones del frontend
- * - Delega la lógica al UserService
- * - Devuelve los datos al frontend
- *
- * IMPORTANTE:
- * - Estos endpoints deberían estar protegidos (ej: solo ADMIN)
- * - El control de acceso se realiza mediante JWT + Spring Security
- */
 
-
+// Controlador per a la gestió de usuaris
 @RestController
 @RequestMapping("/users")
 public class UserController {
@@ -40,59 +23,43 @@ public class UserController {
         this.userService = userService;
     }
 
-    // Endpoint para crear un nuevo usuario
-    //
-    // Recibe un objeto User desde el frontend
-    // Delega la creación al UserService:
-    // - Valida si el usuario ya existe
-    // - Encripta la contraseña (BCrypt)
-    // - Asigna rol por defecto (EMPLOYEE)
-    //
-    // Uso típico:
-    // - Creación de usuarios desde un panel de administración
+    // Crear nou usuari
     @PostMapping
     public User createUser(@RequestBody User user) {
         return userService.createUser(user);
     }
 
-    // Endpoint para eliminar un usuario por su ID
-    //
-    // Recibe el ID del usuario como parámetro en la URL
-    // Delega la eliminación al UserService:
-    // - Verifica si el usuario existe
-    // - Elimina el usuario de la base de datos
-    //
-    // Uso típico:
-    // - Gestión de usuarios por parte de un administrador
+    // Esborrar usuari per ID
     @DeleteMapping("/{id}")
     public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
     }
 
-    // Endpoint para obtener todos los usuarios
-    //
-    // Devuelve una lista completa de usuarios almacenados en la base de datos
-    //
-    // Uso típico:
-    // - Mostrar listado de usuarios en el frontend (panel admin)
+    // Obtenir tots els usuaris
     @GetMapping
     public List<User> getUsers() {
         return userService.getAllUsers();
     }
 
-    //Método para visualizar usuarios online
+    // Endpoint per obtenir el recompte d'usuaris actius
+    // El client crida aquest endpoint cada 15s per mantenir la sessió
     @GetMapping("/online")
-    public Map<String, Long> getOnlineUsers(Authentication authentication) {
-    if (authentication == null || authentication.getPrincipal() == null) {
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticado");
+    public Map<String, Object> getOnlineUsers(Authentication authentication) {
+        if (authentication == null || authentication.getPrincipal() == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No autenticat");
+        }
+
+        Long userId = ((Number) authentication.getPrincipal()).longValue();
+        System.out.println("🔵 [/users/online] userId: " + userId + " | timestamp: " + System.currentTimeMillis());
+
+        userService.markUserAsActive(userId);
+        long count = userService.getOnlineUsersCount();
+        System.out.println("🔵 [/users/online] count: " + count + " | activeUsers: " + userService.getActiveUsersMap().keySet());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("count", count);
+        response.put("updatedAt", Instant.now().toString());
+        return response;
     }
-
-    Long userId = ((Number) authentication.getPrincipal()).longValue();
-
-    userService.markUserAsActive(userId);
-    long count = userService.getOnlineUsersCount();
-
-    return Collections.singletonMap("count", count);
-}
 
 }

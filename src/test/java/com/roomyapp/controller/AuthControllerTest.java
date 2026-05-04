@@ -66,8 +66,8 @@ class AuthControllerTest {
         when(userService.login("test@mail.com", "1234"))
                 .thenReturn(user);
 
-        //when(jwtUtil.generateToken("test@mail.com", "EMPLOYEE", false))
-                //.thenReturn("fake-jwt-token");
+        when(jwtUtil.generateToken("test@mail.com", "EMPLOYEE", false, 1L))
+                .thenReturn("fake-jwt-token");
 
         mockMvc.perform(post("/auth/login")
                         .contentType("application/json")
@@ -108,8 +108,8 @@ class AuthControllerTest {
         when(userService.register("Test", "test@mail.com", "1234"))
                 .thenReturn(user);
 
-        //when(jwtUtil.generateToken("test@mail.com", "EMPLOYEE", false))
-        //        .thenReturn("fake-jwt");
+        when(jwtUtil.generateToken("test@mail.com", "EMPLOYEE", false, 1L))
+                .thenReturn("fake-jwt");
 
         String json = """
         {

@@ -6,7 +6,6 @@ import com.roomyapp.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -14,27 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-/*
- * Servicio que gestiona la lógica de negocio relacionada con usuarios.
- *
- * RESPONSABILIDADES:
- * - Autenticación de usuarios (login)
- * - Registro de nuevos usuarios
- * - Gestión de usuarios (crear, eliminar, listar)
- *
- * FLUJO:
- * - Recibe peticiones desde el controlador
- * - Interactúa con el repositorio para acceder a la BD
- * - Aplica reglas de negocio (validaciones, encriptación)
- *
- * SEGURIDAD:
- * - Las contraseñas se encriptan con BCrypt antes de guardarse
- * - Nunca se comparan contraseñas en texto plano
- *
- * IMPORTANTE:
- * - Aquí reside la lógica principal de la aplicación (no en controllers)
- */
+// Servei que gestiona la lògica de negoci dels usuaris
 @Service
 public class UserService {
 
@@ -42,22 +21,14 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    //Constructor con inyección de dependencia de Repositorio
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    // Metodo de autenticación de usuario
-    //
-    // - Busca el usuario por email
-    // - Si no existe → lanza excepción
-    // - Compara contraseña introducida con la encriptada en BD
-    // - Si no coincide → lanza excepción
-    // - Si todo es correcto → devuelve el usuario
+    // Login: valida email i contrasenya
     public User login(String email, String rawPassword) {
-
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -67,65 +38,36 @@ public class UserService {
         return user;
     }
 
-    // Metodo de registro de usuario
-    //
-    // - Verifica si el email ya existe
-    // - Crea nuevo usuario
-    // - Encripta la contraseña con BCrypt
-    // - Asigna rol por defecto (EMPLOYEE)
-    // - Guarda el usuario en la base de datos
-    public User register(String name, String email, String rawPassword){
-        //Comprobamos si el usuario existe
-        if(userRepository.findByEmail(email).isPresent()){
-            throw  new RuntimeException("El usuario ya existe");
+    // Registre de nou usuari amb rol EMPLOYEE per defecte
+    public User register(String name, String email, String rawPassword) {
+        if (userRepository.findByEmail(email).isPresent()) {
+            throw new RuntimeException("El usuari ja existeix");
         }
 
-        //Crear usuario
-        User user =new User();
+        User user = new User();
         user.setName(name);
         user.setEmail(email);
-
-        //Encriptar Contrasenya
         user.setPassword(passwordEncoder.encode(rawPassword));
-
-        //Asignar rol por defecto
         user.setRole(User.Role.EMPLOYEE);
 
-        //guardar en BD
         return userRepository.save(user);
     }
 
-    // Crear usuario desde admin
-    //
-    // - Verifica si el email ya existe
-    // - Encripta la contraseña
-    // - Asigna rol EMPLOYEE por defecto
-    // - Guarda el usuario
+    // Crear usuari des del panell d'admin
     public User createUser(User user) {
-
-        // comprobar si ya existe email
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new RuntimeException("El usuario ya existe");
+            throw new RuntimeException("El usuari ja existeix");
         }
 
-        // encriptar password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        // asignar rol EMPLOYEE
         user.setRole(User.Role.EMPLOYEE);
 
-        logger.info("Admin ha creado al nuevo usuario "+ user.getName() + " con email " +user.getEmail());
+        logger.info("Admin ha creado al nuevo usuario " + user.getName() + " con email " + user.getEmail());
         return userRepository.save(user);
     }
 
-
-    // Elimina un usuario por su ID
-    //
-    // - Busca el usuario
-    // - Si no existe → excepción
-    // - Lo elimina de la base de datos
+    // Esborrar usuari per ID
     public void deleteUser(Long id) {
-
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
@@ -133,29 +75,30 @@ public class UserService {
         logger.info("Admin ha eliminado a usuario " + user.getName() + " con email " + user.getEmail());
     }
 
-    // Devuelve la lista completa de usuarios
+    // Obtenir tots els usuaris
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-
-    // Estructura del Servicio para contar usuarios activos
+    // Mapa d'usuaris actius: userId -> timestamp
+    // Els usuaris s'expiren després de 5 minuts sense activitat
     private final Map<Long, Long> activeUsers = new ConcurrentHashMap<>();
 
-    //Método para marcar usuario activo
+    // Marcar usuari actiu
     public void markUserAsActive(Long userId) {
         activeUsers.put(userId, System.currentTimeMillis());
     }
 
-    //Método que cuenta usuarios online
+    // Contar usuaris actius (elimina els expirats)
     public long getOnlineUsersCount() {
         long now = System.currentTimeMillis();
-
-        activeUsers.entrySet().removeIf(entry ->
-                now - entry.getValue() > 5 * 60 * 1000
-        );
-
+        activeUsers.entrySet().removeIf(entry -> now - entry.getValue() > 5 * 60 * 1000);
         return activeUsers.size();
+    }
+
+    // Obtenir mapa d'usuaris actius (debug)
+    public Map<Long, Long> getActiveUsersMap() {
+        return activeUsers;
     }
 
 }
